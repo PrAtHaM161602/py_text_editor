@@ -24,12 +24,7 @@ cd ai-text-editor
 ```
 Set up your Gemini Api Key:
 
-Create a .env file in the project root:
-plaintext
-Copy code
-```console
-API_KEY = your api key
-```
+
 Copy code
 
 ```console
