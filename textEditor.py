@@ -4,19 +4,31 @@ from tkinter import ttk
 from tkinter import filedialog
 from tkinter import colorchooser
 import google.generativeai as genai
-from dotenv import load_dotenv
-import os
 
 
-# loading env file with api key environmen variable
-load_dotenv()
-API_KEY = os.getenv('API_KEY')
-# configuring gemini ai api
-genai.configure(api_key=API_KEY)
+#program for fetching api key from the user
+key = None
+# load_dotenv()
+def close():
+     root1.destroy()
+root1 = Tk()
+key = StringVar()
+label = Label(text="Enter api key")
+entry = Entry(root1,textvariable=key)
+button = Button(text="ok", command=close)
+
+label.pack()
+entry.pack()
+button.pack()
+root1.mainloop()
+
+
+# main program
 # setting tone for text rephraser
 tone = "formal"
 # initializing tk root
 root = Tk()
+root.title("aiditor")
 filename = StringVar()
 findText = StringVar()
 # initializing data variable for further extracting of data from text widget
@@ -24,7 +36,7 @@ data = ""
 # initializing corrected variable for further extracting of corrected text from ai panel and storing it in this panel for further use
 correctedText = ""
 color = "black"
-#funtion for setting data variable to value of text widget
+# funtion for setting data variable to value of text widget
 def getText():
     global data
     data = text.get("1.0","end-1c")     
@@ -83,6 +95,9 @@ def copy():
      root.clipboard_append(data)
 # function for ai based rephrasing of text 
 def rephrase():
+     label.config(text= "tone selected: formal")
+     global key
+     genai.configure(api_key= key.get())
      ai_suggestions.configure(state="normal")
      ai_suggestions.delete("1.0",tk.END)
      button5.grid(row=0, column=6)
@@ -91,7 +106,7 @@ def rephrase():
      getText()
      model = genai.GenerativeModel("gemini-1.5-flash")
      response = model.generate_content(f"{data}, rephrase it in a {tone} tone, just give the rephared text(s) and nothing else")
-     print(response.text)
+     # print(response.text)
      lines = response.text.splitlines()
      ai_suggestions.insert(f"{len(lines)}.0",response.text)
      ai_suggestions.configure(state="disabled") 
@@ -99,21 +114,27 @@ def rephrase():
 def informal():
      global tone
      tone = "informal"
+     label.configure(text="tone selected: informal")
 # setting tone to creative 
 def creative():
      global tone
-     tone = "creative"  
+     tone = "creative"
+     label.configure(text="tone selected: creative")  
 #  setting tone to formal  
 def formal():
      global tone
-     tone = "formal"     
+     tone = "formal"
+     label.configure(text= "tone selected: formal")     
+
 def spellChecker():
      global correctedText
+     global key
+     genai.configure(api_key= key.get())
      ai_suggestions.configure(state="normal")
      model = genai.GenerativeModel("gemini-1.5-flash")
      getText()
      res= model.generate_content(f'{data}, return the same text with all spelling corrected, if spelling are alreafdy correct thewn return that part as it is')  
-     print(res.text) 
+     # print(res.text) 
      lines= res.text.splitlines()
      ai_suggestions.delete("1.0",tk.END)
      ai_suggestions.insert(f'{len(lines)}.0',res.text)
@@ -142,7 +163,7 @@ button6 = ttk.Button(text="informal" ,command=informal)
 button7 = ttk.Button(text="creative" ,command=creative)
 button8 = ttk.Button(text="spellCheck",command=spellChecker)
 button9 = ttk.Button(text="correct",command=correct)
-
+label = Label(text = "ai suggestions")
 # binding keypress event to detect_key_press function
 root.bind("<KeyPress>", detect_key_press) 
 root.bind("<Configure>", resize)  
@@ -151,10 +172,12 @@ button.grid(row=0, column=0)
 button1.grid(row=0, column=1)
 button2.grid(row=0, column=2)
 button3.grid(row=0, column=3)
+ai_suggestions.grid(row=1,column= 10,columnspan=4)
 button4.grid(row=0, column=4)
 button8.grid(row=0,column=5)
 text.grid(row=1,columnspan=8)
-ai_suggestions.grid(row=1,column= 10,columnspan=4)
+label.grid(row =0,column= 12, columnspan=1)
+
 
 # end of mainloop
 root.mainloop()
